@@ -1,3 +1,6 @@
+<!doctype html>
+<html lang="ko">
+<head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
 <meta name="claude:viewport-fit-sides" content="cover">
@@ -25,6 +28,7 @@
   --accent:#ff8fb0; --accent-ink:#3a1826; --board:#211a2a; --grid:#3d314c; --line:#4a3c59;
   --shade:rgba(0,0,0,.35); --veil:rgba(42,34,51,.88); color-scheme:dark;
 }
+[hidden]{display:none!important}
 *{box-sizing:border-box}
 html,body{height:100%}
 body{
@@ -92,6 +96,8 @@ body.touch .pad{display:grid} body.touch .hint{display:none}
 .sheet-foot{display:flex; justify-content:space-between; gap:8px}
 @media (prefers-reduced-motion: reduce){ .big:active,.pad button:active{transform:none} }
 </style>
+</head>
+<body>
 
 <div class="app">
   <div class="top">
@@ -634,3 +640,5 @@ try{
 }catch(e){}
 })();
 </script>
+</body>
+</html>
