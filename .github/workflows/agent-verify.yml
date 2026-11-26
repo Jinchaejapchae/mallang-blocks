@@ -1,0 +1,40 @@
+name: Agent Verify (mallang-blocks)
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Check service worker, inline script, and manifest
+        run: |
+          node --check sw.js
+          node -e "const fs=require('fs'),vm=require('vm');const h=fs.readFileSync('index.html','utf8');let i=0;for(const m of h.matchAll(/<script(?![^>]*\bsrc=)[^>]*>([\s\S]*?)<\/script>/gi)){new vm.Script(m[1],{filename:'index.html#'+(++i)});}console.log('OK scripts:',i);"
+          node -e "JSON.parse(require('fs').readFileSync('manifest.json','utf8'));console.log('OK manifest.json');"
+
+      - name: Enforce sw.js CACHE bump when index.html changes
+        if: github.event_name == 'pull_request'
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          if git diff --name-only "$BASE_SHA"...HEAD | grep -qx 'index.html'; then
+            if ! git diff "$BASE_SHA"...HEAD -- sw.js | grep -Eq '^\+.*CACHE\s*='; then
+              echo "::error::index.html changed without bumping CACHE in sw.js:2"
+              exit 1
+            fi
+          fi
+          echo "OK CACHE check"
